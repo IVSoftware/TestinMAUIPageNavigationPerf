@@ -8,7 +8,7 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
     public partial class ItemViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string _title;
+        private string? _title = "Default";
 
         [ObservableProperty]
         IList<int> _numbers = Enumerable.Range(1, 20).ToList();
