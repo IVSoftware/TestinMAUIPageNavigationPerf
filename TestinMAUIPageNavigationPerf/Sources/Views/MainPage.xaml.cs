@@ -6,7 +6,7 @@ namespace TestinMAUIPageNavigationPerf.Sources.Views
     public partial class MainPage : ContentPage
     {
         public MainPage() => InitializeComponent();
-        protected override void OnNavigatedTo(NavigatedToEventArgs args)
+        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
 #if LOOP_TEST
