@@ -18,6 +18,8 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
             try
             {
                 IsRunning = true;
+                // REGISTERED AS:
+                // Routing.RegisterRoute($"{nameof(MainPage)}/{nameof(SelectPage)}", typeof(SelectPage));
                 await Shell.Current.GoToAsync(nameof(SelectPage));
             }
             catch (Exception e)

@@ -15,7 +15,7 @@ public partial class SelectPage : ContentPage
         base.OnAppearing();
         if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
         {
-            BindingContext = valid;
+           BindingContext = valid;
         }
     }
     protected override
@@ -27,7 +27,7 @@ public partial class SelectPage : ContentPage
         await Task.Delay(AppShell.TestInterval);
         if (Handler != null)
         {
-            await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+            await Shell.Current.GoToAsync($"///{nameof(MainPage)}");
         }
 #endif
     }
