@@ -7,7 +7,7 @@
              x:DataType="viewmodels:MainPageViewModel">
 
     <ContentPage.BindingContext>
-        <viewmodels:MainPageViewModel/>
+        <viewmodels:MainPageViewModel x:Name="Page"/>
     </ContentPage.BindingContext>
     <ScrollView>
         <VerticalStackLayout
@@ -15,8 +15,8 @@
             Spacing="25"
           HorizontalOptions="Center"
           VerticalOptions="Center">
-      <CollectionView
-        ItemsSource="{Binding Items}">
+        <CollectionView
+            ItemsSource="{Binding Items}">
         <CollectionView.ItemsLayout>
           <LinearItemsLayout
             Orientation="Horizontal"
@@ -36,9 +36,10 @@
               VerticalOptions="Center"
               HorizontalOptions="Center">
               <Border.GestureRecognizers>
-                <TapGestureRecognizer
-                  NumberOfTapsRequired="2"
-                  Command="{Binding SelectItemCommand}"/>
+                    <TapGestureRecognizer
+                        NumberOfTapsRequired="2"
+                        Command="{Binding SelectItemCommand, Source={x:Reference Page }}"
+                        CommandParameter="{Binding .}"/>
               </Border.GestureRecognizers>
               <Label
                 Text="{Binding Title}"

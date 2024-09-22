@@ -13,6 +13,7 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
         [ObservableProperty]
         IList<int> _numbers = Enumerable.Range(1, 20).ToList();
 
+#if false
         [RelayCommand]
         private async Task SelectItem()
         {
@@ -30,5 +31,6 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
                 Debug.Fail(e.Message);
             }
         }
+#endif
     }
 }
