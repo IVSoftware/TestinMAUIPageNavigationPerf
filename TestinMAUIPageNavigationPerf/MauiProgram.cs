@@ -27,9 +27,9 @@ namespace TestinMAUIPageNavigationPerf
 #if DEBUG
       builder.Logging.AddDebug();
 #endif
-      builder.Services.AddSingleton<MainPageViewModel>();
-      builder.Services.AddSingleton<MainPage>();
-      builder.Services.AddSingleton<SelectPage>();
+      //builder.Services.AddSingleton<MainPageViewModel>();
+      //builder.Services.AddSingleton<MainPage>();
+      //builder.Services.AddSingleton<SelectPage>();
       var app = builder.Build();
       _services = app.Services;
       return app;

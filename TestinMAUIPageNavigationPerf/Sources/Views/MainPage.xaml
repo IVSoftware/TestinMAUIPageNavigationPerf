@@ -6,6 +6,9 @@
              x:Class="TestinMAUIPageNavigationPerf.Sources.Views.MainPage"
              x:DataType="viewmodels:MainPageViewModel">
 
+    <ContentPage.BindingContext>
+        <viewmodels:MainPageViewModel/>
+    </ContentPage.BindingContext>
     <ScrollView>
         <VerticalStackLayout
             Padding="30,0"

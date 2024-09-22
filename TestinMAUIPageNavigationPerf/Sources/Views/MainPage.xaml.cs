@@ -4,15 +4,7 @@ namespace TestinMAUIPageNavigationPerf.Sources.Views
 {
     public partial class MainPage : ContentPage
     {
-
-        MainPageViewModel _mainPageViewModel;
-
-        public MainPage(MainPageViewModel mainPageViewModel)
-        {
-            InitializeComponent();
-            _mainPageViewModel = mainPageViewModel;
-            BindingContext = mainPageViewModel;
-        }
+        public MainPage() => InitializeComponent();
         protected override void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
