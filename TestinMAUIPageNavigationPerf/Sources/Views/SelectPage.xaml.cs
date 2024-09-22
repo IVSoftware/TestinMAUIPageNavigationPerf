@@ -9,10 +9,18 @@ public partial class SelectPage : ContentPage
     {
         InitializeComponent();
     }
-    protected override void OnNavigatedTo(NavigatedToEventArgs args)
+    protected override
+        async   // Added for test
+        void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        Task.Delay(1).Wait();
+        Task.Delay(1).Wait(); // < Per original design
         BindingContext = MauiProgram.MainPage?.SelectedItemViewModel;
+
+
+#if LOOP_TEST
+        await Task.Delay(AppShell.TestInterval);
+        await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+#endif
     }
 }
