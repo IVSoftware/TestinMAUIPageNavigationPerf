@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TestinMAUIPageNavigationPerf.Sources.Views.SelectPage"
+             xmlns:views="clr-namespace:TestinMAUIPageNavigationPerf.Sources.Views"
+             xmlns:viewmodels="clr-namespace:TestinMAUIPageNavigationPerf.Sources.ViewModels"
+             Title="SelectPage"
+             x:DataType="viewmodels:ItemViewModel">
+    <VerticalStackLayout
+      HorizontalOptions="Center"
+      VerticalOptions="Center">
+    <Border
+      Stroke="DodgerBlue"
+      BackgroundColor="Beige"
+      StrokeThickness="5"
+      StrokeShape="RoundRectangle 20"
+      MinimumHeightRequest="300"
+      MinimumWidthRequest="300">
+      <Grid
+          RowDefinitions="auto,*">
+        <Label 
+          Grid.Row="0"
+          Margin="10"
+          Text="{Binding Title}"
+          FontSize="Title"
+          FontAttributes="Bold"
+          TextColor="Goldenrod"
+          HorizontalTextAlignment="Center"
+          HorizontalOptions="Center"
+          VerticalOptions="Center"/>
+        <CollectionView Grid.Row="1"                                
+          ItemsSource="{Binding Numbers}"
+        >
+          <CollectionView.ItemsLayout>
+            <GridItemsLayout 
+              Orientation="Vertical" 
+              Span="5"                       
+              HorizontalItemSpacing="1" 
+              VerticalItemSpacing="1"/>
+          </CollectionView.ItemsLayout>
+          <CollectionView.ItemTemplate>
+            <DataTemplate>
+              <Border
+                BackgroundColor="WhiteSmoke"
+                Stroke="darkred"
+                StrokeThickness="3"
+                MaximumHeightRequest="38"
+                MinimumHeightRequest="38"
+                MaximumWidthRequest="36"
+                MinimumWidthRequest="36"
+              >
+                <Label
+                    Text="{Binding .}"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    TextColor="Red"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                  />
+              </Border>
+            </DataTemplate>
+          </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+    </Border>
+    </VerticalStackLayout>
+</ContentPage>
