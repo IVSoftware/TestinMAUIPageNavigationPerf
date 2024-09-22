@@ -11,9 +11,6 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
     {
         public static ItemViewModel? SelectedItemViewModel { get; set; }
 
-        [ObservableProperty]
-        ObservableCollection<ItemViewModel> _items;
-
         [RelayCommand]
         private async Task SelectItem(ItemViewModel item)
         {
@@ -27,17 +24,13 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
                 Debug.Fail(e.Message);
             }
         }
-
-        public MainPageViewModel()
+        public ItemViewModel[] Items { get; } = new[]
         {
-            Items =
-            [
-                new ItemViewModel{ Title = "One" },
-                new ItemViewModel{ Title = "Two" },
-                new ItemViewModel{ Title = "Three" },
-                new ItemViewModel{ Title = "Four" },
-                new ItemViewModel{ Title = "Five" },
-            ];
-        }
+            new ItemViewModel{ Title = "One" },
+            new ItemViewModel{ Title = "Two" },
+            new ItemViewModel{ Title = "Three" },
+            new ItemViewModel{ Title = "Four" },
+            new ItemViewModel{ Title = "Five" },
+        };
     }
 }
