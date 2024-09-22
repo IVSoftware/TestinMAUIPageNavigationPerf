@@ -18,17 +18,16 @@ public partial class SelectPage : ContentPage
             BindingContext = valid;
         }
     }
-    protected override
-        async   // Added for test
-        void OnNavigatedTo(NavigatedToEventArgs args)
+#if SELF_TEST
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-#if SELF_TEST
         await Task.Delay(AppShell.TestInterval);
         if (Handler != null)
         {
-            await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+            // Discard task to keep self-test stack from creeping from recursion
+            _ = Shell.Current.GoToAsync($"//{nameof(MainPage)}");
         }
-#endif
     }
+#endif
 }

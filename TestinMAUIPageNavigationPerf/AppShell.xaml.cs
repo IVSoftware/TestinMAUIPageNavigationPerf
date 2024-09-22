@@ -11,6 +11,6 @@ namespace TestinMAUIPageNavigationPerf
 
             Routing.RegisterRoute($"{nameof(MainPage)}/{nameof(SelectPage)}", typeof(SelectPage));
         }
-        public static TimeSpan TestInterval = TimeSpan.FromSeconds(5);
+        public static TimeSpan TestInterval = TimeSpan.FromSeconds(1);
     }
 }

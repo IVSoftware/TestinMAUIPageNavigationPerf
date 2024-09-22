@@ -17,7 +17,10 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
             SelectedItemViewModel = item;
             try
             {
-                await Shell.Current.GoToAsync(nameof(SelectPage));
+                if (App.Current?.MainPage?.Handler != null)
+                {
+                    await Shell.Current.GoToAsync(nameof(SelectPage));
+                }
             }
             catch (Exception e)
             {

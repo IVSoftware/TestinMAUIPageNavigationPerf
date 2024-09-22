@@ -1,6 +1,4 @@
-With a reliable means of reproducing the bug, my hope was to eradicate it with as little change to the architecture as possible. However, in order to make it pass constrained randomized testing, I had to make some non-trivial changes which are offered as suggestions.
-
-These changes were tested in a loop that repeatedly selects a random `ItemViewModel` from `Items` and uses it to invoke `SelectItem`, and this was run for >100 iterations.
+The SELF_TEST provides a reliable means of reproducing the bug, and testing changes against it. I was hoping to improve things with as little change to the architecture as possible. However, in order to make it pass constrained randomized testing, I had to make some non-trivial changes. If you like, you can experiment with these and see whether it moves things forward on your end. It's working pretty well here; I've run it for  >100 iterations on Windows Machine where the loop repeatedly selects a random `ItemViewModel` from `Items` and uses it to invoke `SelectItem`.
 ___
 
 #### Changes
@@ -18,7 +16,10 @@ public partial class MainPageViewModel : ObservableObject
         SelectedItemViewModel = item;
         try
         {
-            await Shell.Current.GoToAsync(nameof(SelectPage));
+            if (App.Current?.MainPage?.Handler != null)
+            {
+                await Shell.Current.GoToAsync(nameof(SelectPage));
+            }
         }
         catch (Exception e)
         {
@@ -53,6 +54,18 @@ public partial class SelectPage : ContentPage
             BindingContext = valid;
         }
     }
+#if SELF_TEST
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+    {
+        base.OnNavigatedTo(args);
+        await Task.Delay(AppShell.TestInterval);
+        if (Handler != null)
+        {
+            // Discard task to keep self-test stack from creeping from recursion
+            _ = Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+        }
+    }
+#endif
 }
 ```
 
@@ -96,6 +109,31 @@ This is reflected these changes to **MainPage.xaml**:
     </ScrollView>
 </ContentPage>
 
+```
+
+The only added functionality in the code behind for MainPage is the SELF_TEST block.
+
+```
+public partial class MainPage : ContentPage
+{
+    public MainPage() => InitializeComponent();
+    new MainPageViewModel BindingContext =>(MainPageViewModel)base.BindingContext;
+#if SELF_TEST
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+    {
+        base.OnNavigatedTo(args);
+            await Task.Delay(AppShell.TestInterval);
+            // After for optional 'long' setup interval for the first
+            // iteration, followed by test at smaller increments.
+            AppShell.TestInterval = TimeSpan.FromSeconds(1);
+            Debug.WriteLine($"Count = {_debugCount++}");
+            var randoBC = BindingContext.Items[_rando.Next(BindingContext.Items.Length)];
+            BindingContext.SelectItemCommand.Execute(randoBC);
+    }
+    int _debugCount = 1;
+    Random _rando = new Random(Seed: 1);
+#endif
+}
 ```
 
 ##### Minor Changes
