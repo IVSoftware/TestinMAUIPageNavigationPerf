@@ -20,10 +20,7 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
                 MauiProgram.MainPage.SelectedItemViewModel = this;
             try
             {
-                var stopwatch = Stopwatch.StartNew();
                 await Shell.Current.GoToAsync(nameof(SelectPage));
-                stopwatch.Stop();
-                Debug.WriteLine($"{nameof(SelectItem)} Elapsed: {stopwatch.Elapsed}");
             }
             catch (Exception e)
             {
