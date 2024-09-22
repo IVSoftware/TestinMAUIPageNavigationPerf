@@ -2,14 +2,15 @@
 
 namespace TestinMAUIPageNavigationPerf
 {
-  public partial class AppShell : Shell
-  {
-
-    public AppShell()
+    public partial class AppShell : Shell
     {
-      InitializeComponent();
 
-      Routing.RegisterRoute($"{nameof(MainPage)}/{nameof(SelectPage)}", typeof(SelectPage));
+        public AppShell()
+        {
+            InitializeComponent();
+
+            Routing.RegisterRoute($"{nameof(MainPage)}/{nameof(SelectPage)}", typeof(SelectPage));
+        }
+        public static TimeSpan TestInterval = TimeSpan.FromSeconds(5);
     }
-  }
 }
