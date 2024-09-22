@@ -14,8 +14,10 @@ public partial class SelectPage : ContentPage
         void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        Task.Delay(1).Wait(); // < Per original design
-        BindingContext = MauiProgram.MainPage?.SelectedItemViewModel;
+        // Task.Delay(1).Wait(); // < Per original design
+
+        await Task.Delay(50);
+        // BindingContext = MauiProgram.MainPage?.SelectedItemViewModel;
 
 
 #if LOOP_TEST

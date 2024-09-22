@@ -30,10 +30,5 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
                 Debug.Fail(e.Message);
             }
         }
-
-        public ItemViewModel(string title)
-        {
-            Title = title;
-        }
     }
 }

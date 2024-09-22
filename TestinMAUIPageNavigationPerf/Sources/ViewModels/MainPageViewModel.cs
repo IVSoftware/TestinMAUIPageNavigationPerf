@@ -14,11 +14,11 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
     {
       Items =
       [
-        new("One"),
-        new("Two"),
-        new("Three"),
-        new("Four"),
-        new("Five")
+        new ItemViewModel{ Title = "One" },
+        new ItemViewModel{ Title = "Two" },
+        new ItemViewModel{ Title = "Three" },
+        new ItemViewModel{ Title = "Four" },
+        new ItemViewModel{ Title = "Five" },
       ];
     }
   }
