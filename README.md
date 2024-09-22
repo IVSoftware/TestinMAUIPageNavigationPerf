@@ -1,11 +1,47 @@
-With a reliable means of reproducing the bug, my hope was to eradicate it with as little change to the architecture as possible. However, in order to make it pass constrained randomized testing, I had to make some non-trivial changes which are offered as suggestions.
+The Android branch is predicated on the Windows branch.
 
-These changes were tested in a loop that repeatedly selects a random `ItemViewModel` from `Items` and uses it to invoke `SelectItem`, and this was run for >100 iterations.
+The navigation doesn't seem very performant on Android; it takes almost a second to show the `SelectPage`.
+
+What's worst is that there seems to be a cumulative effect of performing the navigation repeatedly (either interactively, or running the test loop), adding a sbout a half second to the response every time.
+
 ___
 
-#### Changes
+#### Android-specific changes
 
-The biggest change is moving the `SelectItem` command to the `MainPageViewModel`:
+With that in mind, an activity indicator has been superimposed on MainPage to let user know that the request is being worked on.
+
+```
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:TestinMAUIPageNavigationPerf.Sources.Views"
+             xmlns:viewmodels="clr-namespace:TestinMAUIPageNavigationPerf.Sources.ViewModels"
+             x:Class="TestinMAUIPageNavigationPerf.Sources.Views.MainPage"
+             x:DataType="viewmodels:MainPageViewModel">
+
+    <ContentPage.BindingContext>
+        <viewmodels:MainPageViewModel x:Name="Page"/>
+    </ContentPage.BindingContext>
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout>
+            .
+            .
+            .
+            </VerticalStackLayout>
+        </ScrollView>
+        <ActivityIndicator 
+            x:Name="activityIndicator" 
+            HeightRequest="50"
+            WidthRequest="50"
+            IsVisible="{Binding IsRunning, Mode=OneWay}"
+            IsRunning="{Binding IsRunning, Mode=OneWay}"/>
+    </Grid>
+</ContentPage>
+
+```
+
+It's bound to `IsRunning` in the VM
 
 ```
 public partial class MainPageViewModel : ObservableObject
@@ -18,11 +54,18 @@ public partial class MainPageViewModel : ObservableObject
         SelectedItemViewModel = item;
         try
         {
+            IsRunning = true;
+            // REGISTERED AS:
+            // Routing.RegisterRoute($"{nameof(MainPage)}/{nameof(SelectPage)}", typeof(SelectPage));
             await Shell.Current.GoToAsync(nameof(SelectPage));
         }
         catch (Exception e)
         {
             Debug.Fail(e.Message);
+        }
+        finally
+        {
+            IsRunning = false;
         }
     }
     public ItemViewModel[] Items { get; } = new[]
@@ -33,74 +76,8 @@ public partial class MainPageViewModel : ObservableObject
         new ItemViewModel{ Title = "Four" },
         new ItemViewModel{ Title = "Five" },
     };
+
+    [ObservableProperty]
+    private bool _isRunning;
 }
 ```
-
-In doing so, all the `SelectPage` needs to do is pull the current BC in the `OnAppearing` method.
-
-```
-public partial class SelectPage : ContentPage
-{
-    public SelectPage()
-    {
-        InitializeComponent();
-    }
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
-        {
-            BindingContext = valid;
-        }
-    }
-}
-```
-
-This is reflected these changes to **MainPage.xaml**:
-
-```
-<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:views="clr-namespace:TestinMAUIPageNavigationPerf.Sources.Views"
-             xmlns:viewmodels="clr-namespace:TestinMAUIPageNavigationPerf.Sources.ViewModels"
-             x:Class="TestinMAUIPageNavigationPerf.Sources.Views.MainPage"
-             x:DataType="viewmodels:MainPageViewModel">
-    <!--Set BC here with x:Ref="Page"-->
-    <ContentPage.BindingContext>
-        <viewmodels:MainPageViewModel x:Name="Page"/>
-    </ContentPage.BindingContext>
-    <ScrollView>
-        .
-        .
-        .
-        <CollectionView>
-            <CollectionView.ItemTemplate>
-              <DataTemplate x:DataType="viewmodels:ItemViewModel">
-                <Border>
-                  .
-                  .
-                  .
-                  <Border.GestureRecognizers>
-                        <TapGestureRecognizer
-                            NumberOfTapsRequired="2"
-                            Command="{Binding SelectItemCommand, Source={x:Reference Page }}"
-                            CommandParameter="{Binding .}"/>
-                  </Border.GestureRecognizers>
-              </DataTemplate>
-            </CollectionView.ItemTemplate>
-          </CollectionView>
-          .
-          .
-          .
-    </ScrollView>
-</ContentPage>
-
-```
-
-##### Minor Changes
-
-- Removed Singleton Registrations for MainPage, MainPageViewModel, and SelectPage.
-- Made all C'Tors parameterless.
-
-

@@ -15,7 +15,7 @@ public partial class SelectPage : ContentPage
         base.OnAppearing();
         if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
         {
-           BindingContext = valid;
+            BindingContext = valid;
         }
     }
 #if SELF_TEST
