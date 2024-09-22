@@ -1,3 +1,8 @@
+_This repo is a [Clone](https://github.com/elTRexx/TestinMAUIPageNavigationPerf) from a public link on SO. The original author is [elTRexx](https://github.com/elTRexx). This purpose of archiving it here is to debug without impacting the original git._
+
+___
+
+
 # TestinMAUIPageNavigationPerf
 
 Here is the base code for a simple testing project.
