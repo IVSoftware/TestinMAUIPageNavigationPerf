@@ -17,11 +17,16 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
             SelectedItemViewModel = item;
             try
             {
+                IsRunning = true;
                 await Shell.Current.GoToAsync(nameof(SelectPage));
             }
             catch (Exception e)
             {
                 Debug.Fail(e.Message);
+            }
+            finally
+            {
+                IsRunning = false;
             }
         }
         public ItemViewModel[] Items { get; } = new[]
@@ -32,5 +37,8 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
             new ItemViewModel{ Title = "Four" },
             new ItemViewModel{ Title = "Five" },
         };
+
+        [ObservableProperty]
+        private bool _isRunning;
     }
 }

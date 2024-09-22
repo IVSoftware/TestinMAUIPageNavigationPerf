@@ -9,50 +9,57 @@
     <ContentPage.BindingContext>
         <viewmodels:MainPageViewModel x:Name="Page"/>
     </ContentPage.BindingContext>
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25"
-          HorizontalOptions="Center"
-          VerticalOptions="Center">
-        <CollectionView
-            ItemsSource="{Binding Items}">
-        <CollectionView.ItemsLayout>
-          <LinearItemsLayout
-            Orientation="Horizontal"
-            ItemSpacing="20"/>
-        </CollectionView.ItemsLayout>
-        <CollectionView.ItemTemplate>
-          <DataTemplate x:DataType="viewmodels:ItemViewModel">
-            <Border
-              Stroke="Crimson"
-              StrokeThickness="5"
-              BackgroundColor="AntiqueWhite"
-              StrokeShape="RoundRectangle 10"
-              Padding="10"
-              MinimumHeightRequest="100"
-              MaximumWidthRequest="200"
-              MinimumWidthRequest="200"
-              VerticalOptions="Center"
-              HorizontalOptions="Center">
-              <Border.GestureRecognizers>
-                    <TapGestureRecognizer
-                        NumberOfTapsRequired="2"
-                        Command="{Binding SelectItemCommand, Source={x:Reference Page }}"
-                        CommandParameter="{Binding .}"/>
-              </Border.GestureRecognizers>
-              <Label
-                Text="{Binding Title}"
-                TextColor="Navy"
-                FontSize="Header"
-                FontAttributes="Bold"
-                HorizontalTextAlignment="Center"
-                VerticalTextAlignment="Center"/>
-            </Border>
-          </DataTemplate>
-        </CollectionView.ItemTemplate>
-      </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
-
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout
+                Padding="30,0"
+                Spacing="25"
+              HorizontalOptions="Center"
+              VerticalOptions="Center">
+                <CollectionView
+                    ItemsSource="{Binding Items}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout
+                    Orientation="Horizontal"
+                    ItemSpacing="20"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:ItemViewModel">
+                            <Border
+                      Stroke="Crimson"
+                      StrokeThickness="5"
+                      BackgroundColor="AntiqueWhite"
+                      StrokeShape="RoundRectangle 10"
+                      Padding="10"
+                      MinimumHeightRequest="100"
+                      MaximumWidthRequest="200"
+                      MinimumWidthRequest="200"
+                      VerticalOptions="Center"
+                      HorizontalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                NumberOfTapsRequired="2"
+                                Command="{Binding SelectItemCommand, Source={x:Reference Page }}"
+                                CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <Label
+                        Text="{Binding Title}"
+                        TextColor="Navy"
+                        FontSize="Header"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+        <ActivityIndicator 
+            x:Name="activityIndicator" 
+            HeightRequest="50"
+            WidthRequest="50"
+            IsVisible="{Binding IsRunning, Mode=OneWay}"
+            IsRunning="{Binding IsRunning, Mode=OneWay}"/>
+    </Grid>
 </ContentPage>
