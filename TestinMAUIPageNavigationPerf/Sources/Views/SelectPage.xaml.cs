@@ -18,7 +18,7 @@ public partial class SelectPage : ContentPage
         BindingContext = MauiProgram.MainPage?.SelectedItemViewModel;
 
 
-#if LOOP_TEST
+#if SELF_TEST
         await Task.Delay(AppShell.TestInterval);
         await Shell.Current.GoToAsync($"//{nameof(MainPage)}");
 #endif

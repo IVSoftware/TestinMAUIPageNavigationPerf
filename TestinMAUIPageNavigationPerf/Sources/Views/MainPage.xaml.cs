@@ -17,7 +17,7 @@ namespace TestinMAUIPageNavigationPerf.Sources.Views
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
-#if LOOP_TEST
+#if SELF_TEST
             await Task.Delay(AppShell.TestInterval);
             // After first 'long' setup interval, test at smaller increments.
             AppShell.TestInterval = TimeSpan.FromSeconds(1);
