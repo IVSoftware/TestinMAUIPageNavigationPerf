@@ -21,8 +21,8 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
                 if (App.Current?.MainPage?.Handler != null)
                 {
 #if WINDOWS
-                    retry:
                     int tries = 1;
+                    retry:
                     try
                     {
                         await Shell.Current.GoToAsync(nameof(SelectPage));
