@@ -1,4 +1,6 @@
-The SELF_TEST provides a reliable means of reproducing the bug, and testing changes against it. I was hoping to improve things with as little change to the architecture as possible. However, in order to make it pass constrained randomized testing, I had to make some non-trivial changes. If you like, you can experiment with these and see whether it moves things forward on your end. It's working pretty well here; I've run it for  >100 iterations on Windows Machine where the loop repeatedly selects a random `ItemViewModel` from `Items` and uses it to invoke `SelectItem`.
+Based on the SELF_TEST which provides a reliable means of reproducing the bug and testing changes against it, I was hoping to improve things with as little change to the architecture as possible. However, in order to make it pass constrained randomized testing, I had to make some decidedly non-trivial changes. If you like, you can experiment with these and see whether it moves things forward on your end. It's working pretty well here; I've run it for  >100 iterations on Windows Machine where the loop repeatedly selects a random `ItemViewModel` from `Items` and uses it to invoke `SelectItem`.
+
+[Clone: windows-machine-successful-test](https://github.com/IVSoftware/TestinMAUIPageNavigationPerf/tree/windows-machine-successful-test)
 ___
 
 #### Changes
@@ -138,7 +140,7 @@ public partial class MainPage : ContentPage
 
 ##### Minor Changes
 
-- Removed Singleton Registrations for MainPage, MainPageViewModel, and SelectPage.
+- Removed Singleton Registrations for MainPage, MainPageViewModel
 - Made all C'Tors parameterless.
 
 

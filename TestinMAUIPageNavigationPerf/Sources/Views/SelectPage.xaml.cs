@@ -6,19 +6,14 @@ namespace TestinMAUIPageNavigationPerf.Sources.Views;
 
 public partial class SelectPage : ContentPage
 {
+#if SELF_TEST
+    private static uint _instanceCounter = 0;
     public SelectPage()
     {
+        _instanceCounter++;
+        Debug.Assert(_instanceCounter <= 1, "Expecting only one instance of this class.");
         InitializeComponent();
     }
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
-        {
-            BindingContext = valid;
-        }
-    }
-#if SELF_TEST
     protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
@@ -29,5 +24,17 @@ public partial class SelectPage : ContentPage
             _ = Shell.Current.GoToAsync($"//{nameof(MainPage)}");
         }
     }
+#else
+	public SelectPage() => InitializeComponent();
+#endif
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
+        {
+            BindingContext = valid;
+        }
+    }
+#if SELF_TEST
 #endif
 }

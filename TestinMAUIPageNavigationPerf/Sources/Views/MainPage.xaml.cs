@@ -5,9 +5,14 @@ namespace TestinMAUIPageNavigationPerf.Sources.Views
 {
     public partial class MainPage : ContentPage
     {
-        public MainPage() => InitializeComponent();
-        new MainPageViewModel BindingContext =>(MainPageViewModel)base.BindingContext;
 #if SELF_TEST
+        private static uint _instanceCounter = 0;
+        public MainPage()
+        {
+            _instanceCounter++;
+            Debug.Assert(_instanceCounter <= 1, "Expecting only one instance of this class.");
+            InitializeComponent();
+        }
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
@@ -21,6 +26,10 @@ namespace TestinMAUIPageNavigationPerf.Sources.Views
         }
         int _debugCount = 1;
         Random _rando = new Random(Seed: 1);
+#else 
+        public MainPage() => InitializeComponent();
 #endif
+       
+        new MainPageViewModel BindingContext =>(MainPageViewModel)base.BindingContext;
     }
 }
