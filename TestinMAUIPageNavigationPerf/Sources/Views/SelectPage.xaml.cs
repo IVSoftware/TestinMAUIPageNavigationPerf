@@ -35,6 +35,4 @@ public partial class SelectPage : ContentPage
             BindingContext = valid;
         }
     }
-#if SELF_TEST
-#endif
 }
