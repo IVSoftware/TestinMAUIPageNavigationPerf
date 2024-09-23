@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using TestinMAUIPageNavigationPerf.Sources.Views;
 
 namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
@@ -19,7 +20,33 @@ namespace TestinMAUIPageNavigationPerf.Sources.ViewModels
             {
                 if (App.Current?.MainPage?.Handler != null)
                 {
-                    await Shell.Current.GoToAsync(nameof(SelectPage));
+#if WINDOWS
+                    retry:
+                    int tries = 1;
+                    try
+                    {
+                        await Shell.Current.GoToAsync(nameof(SelectPage));
+                    }
+                    catch(System.Runtime.InteropServices.COMException ex) 
+                    {
+                        if(tries == 1) 
+                            Debug.WriteLine($"{ex.GetType().Name}{Environment.NewLine}{ex.Message}");
+                        if (tries++ < 5)
+                        {
+                            goto retry;
+                        }
+                        else throw new AggregateException(ex);
+                    }
+#else
+                    try
+                    {
+                        await Shell.Current.GoToAsync(nameof(SelectPage));
+                    }
+                    catch(Exception ex) 
+                    {
+                        Debug.WriteLine($"{ex.GetType().Name} is unexpected on this platform.");
+                    }
+#endif
                 }
             }
             catch (Exception e)

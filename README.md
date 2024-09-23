@@ -1,9 +1,107 @@
-Based on the SELF_TEST which provides a reliable means of reproducing the bug and testing changes against it, I was hoping to improve things with as little change to the architecture as possible. However, in order to make it pass constrained randomized testing, I had to make some decidedly non-trivial changes. If you like, you can experiment with these and see whether it moves things forward on your end. It's working pretty well here; I've run it for  >100 iterations on Windows Machine where the loop repeatedly selects a random `ItemViewModel` from `Items` and uses it to invoke `SelectItem`.
+___
+_This is an UPDATED ANSWER. I have been able to:_
+ - _Identify the specific exception being thrown_
+ - _Identify a possible MAUI platform bug that might explain it._
+ - _Intercept the exception and successfully use a retry mechanism to test on a long-running loop._
 
-[Clone: windows-machine-successful-test](https://github.com/IVSoftware/TestinMAUIPageNavigationPerf/tree/windows-machine-successful-test)
+
+This debug output shows a successful retry at N=5 ***but it also unexpectedly produced a message from the MAUI platform inviting us to submit a bug.*** (_I'm on it..._)
+
+[![debug log with maui message][2]][2]
 ___
 
-#### Changes
+It's not always easy to identify the cause of spurious or seemingly random exceptions, but since the posted question includes a [link to the code repo](https://github.com/elTRexx/TestinMAUIPageNavigationPerf) it made me want to give it a try. I took the approach of setting two Conditional Compilation Symbols in the project so that I could enable a ping-ponging back and forth between `MainPage` and `SelectPage` as implemented in the code below.
+
+[![conditional compile symbols][1]][1]
+
+The bug was easily to reproduce by cloning the code repo and adding the **SELF_TEST** loop shown below, with a mean time to failure of < 10 cycles. This experiment identifies that the exception is specifically a `System.Runtime.InteropServices.COMException` occurring (as one might expect) on the Windows platform only.
+ - When the line that adds `SelectPage` as a singleton was commented out and the **SELF_TEST** loop run overnight, a **cycle count of >25,000 was reached without failure**. (This means 0 exceptions thrown.) 
+ - If the line is reinstated, exceptions seem inevitable and usually occur in << 100 cycles.
+ 
+
+``` 
+public static MauiApp CreateMauiApp()
+{
+    .
+    .
+    .
+    builder.Services.AddSingleton<SelectPage>();
+}
+```
+
+___
+
+##### Singleton is Required, However
+
+The final `SelectPage` class used for test is shown below, and enforces the singleton with a `Debug.Assert` if attempts are made to instantiate more than once (as would be the case if `builder.Services.AddTransient<SelectPage>()` were used instead). It also demonstrates how to intervene and retry for the exception that is thrown. In fact, we're going to hit paydirt with this approach as shown in the image that follows.
+
+```
+public partial class SelectPage : ContentPage
+{
+#if SELF_TEST
+    private static uint _instanceCounter = 0;
+    public SelectPage()
+    {
+        _instanceCounter++;
+        Debug.Assert(_instanceCounter <= 1, "Expecting only one instance of this class.");
+        InitializeComponent();
+    }
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+    {
+        base.OnNavigatedTo(args);
+        await Task.Delay(AppShell.TestInterval);
+        if (App.Current?.MainPage?.Handler != null)
+        {
+#if WINDOWS
+            retry:
+            int tries = 1;
+            try
+            {
+                await Shell.Current.GoToAsync($"///{ nameof(MainPage)}");
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                if (tries == 1)
+                    Debug.WriteLine($"{ex.GetType().Name}{Environment.NewLine}{ex.Message}");
+                if (tries++ < 5)
+                {
+                    goto retry;
+                }
+                else throw new AggregateException(ex);
+            }
+#else
+            try
+            {
+                await Shell.Current.GoToAsync(nameof(SelectPage));
+            }
+            catch(Exception ex) 
+            {
+                Debug.WriteLine($"{ex.GetType().Name} is unexpected on this platform.");
+            }
+#endif
+        }
+    }
+#else
+	public SelectPage() => InitializeComponent();
+#endif
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
+        {
+            BindingContext = valid;
+        }
+    }
+}
+```
+
+___
+
+#### Test conditions
+
+Here is the remainder of the test code I ended up using:
+
+[Clone: windows-machine-successful-test](https://github.com/IVSoftware/TestinMAUIPageNavigationPerf/tree/windows-machine-successful-test)
 
 The biggest change is moving the `SelectItem` command to the `MainPageViewModel`:
 
@@ -39,7 +137,7 @@ public partial class MainPageViewModel : ObservableObject
 }
 ```
 
-In doing so, all the `SelectPage` needs to do is pull the current BC in the `OnAppearing` method.
+In doing so, all the `SelectPage` needs to do is pull the current BC in the `OnAppearing` method. To the extent that there may have been suspicion around the original code changing the binding context synchronously within the `OnNavigatedTo` block, thes changes were designed to perform the same bindings in a more standard way.
 
 ```
 public partial class SelectPage : ContentPage
@@ -143,4 +241,8 @@ public partial class MainPage : ContentPage
 - Removed Singleton Registrations for MainPage, MainPageViewModel
 - Made all C'Tors parameterless.
 
+___
 
+
+  [1]: https://i.sstatic.net/OBrggB18.png
+  [2]: https://i.sstatic.net/DXYq3o4E.png

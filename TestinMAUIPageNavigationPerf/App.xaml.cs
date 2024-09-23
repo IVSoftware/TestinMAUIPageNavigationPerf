@@ -1,12 +1,11 @@
 ﻿namespace TestinMAUIPageNavigationPerf
 {
-  public partial class App : Application
-  {
-    public App()
+    public partial class App : Application
     {
-      InitializeComponent();
-
-      MainPage = new AppShell();
+        public App()
+        {
+            InitializeComponent();
+            MainPage = new AppShell();
+        }
     }
-  }
 }

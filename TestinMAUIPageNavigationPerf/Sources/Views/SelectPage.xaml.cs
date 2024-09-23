@@ -18,10 +18,35 @@ public partial class SelectPage : ContentPage
     {
         base.OnNavigatedTo(args);
         await Task.Delay(AppShell.TestInterval);
-        if (Handler != null)
+        if (App.Current?.MainPage?.Handler != null)
         {
-            // Discard task to keep self-test stack from creeping from recursion
-            _ = Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+#if WINDOWS
+            retry:
+            int tries = 1;
+            try
+            {
+                await Shell.Current.GoToAsync($"///{ nameof(MainPage)}");
+            }
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                if (tries == 1)
+                    Debug.WriteLine($"{ex.GetType().Name}{Environment.NewLine}{ex.Message}");
+                if (tries++ < 5)
+                {
+                    goto retry;
+                }
+                else throw new AggregateException(ex);
+            }
+#else
+            try
+            {
+                await Shell.Current.GoToAsync(nameof(SelectPage));
+            }
+            catch(Exception ex) 
+            {
+                Debug.WriteLine($"{ex.GetType().Name} is unexpected on this platform.");
+            }
+#endif
         }
     }
 #else

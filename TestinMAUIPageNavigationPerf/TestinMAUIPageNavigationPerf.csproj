@@ -45,7 +45,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows10.0.19041.0|AnyCPU'">
-	  <DefineConstants>$(DefineConstants);SELF_TEST</DefineConstants>
+	  <DefineConstants>$(DefineConstants);SELF_TEST;DISABLE_XAML_GENERATED_BREAK_ON_UNHANDLED_EXCEPTION</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -76,6 +76,10 @@
 	  <MauiXaml Update="Sources\Views\SelectPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Screenshots\" />
 	</ItemGroup>
 
 </Project>
