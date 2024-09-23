@@ -10,7 +10,10 @@ This debug output shows a successful retry at N=5 ***but it also unexpectedly pr
 [![debug log with maui message][2]][2]
 ___
 
-It's not always easy to identify the cause of spurious or seemingly random exceptions, but since the posted question includes a [link to the code repo](https://github.com/elTRexx/TestinMAUIPageNavigationPerf) it made me want to give it a try. I took the approach of setting two Conditional Compilation Symbols in the project so that I could enable a ping-ponging back and forth between `MainPage` and `SelectPage` as implemented in the code below.
+##### Test loop to Reproduce the Bug
+
+
+It's not always easy to identify the cause of spurious or seemingly random exceptions, but since the posted question includes a [link to the code repo](https://github.com/elTRexx/TestinMAUIPageNavigationPerf) it made me want to give it a try. I took the approach of setting two Conditional Compilation Symbols in the project so that I could enable an automated ping-ponging back and forth between `MainPage` and `SelectPage` as implemented in the code below, and just let it run.
 
 [![conditional compile symbols][1]][1]
 
@@ -99,11 +102,9 @@ ___
 
 #### Test conditions
 
-Here is the remainder of the test code I ended up using:
+Here's the remainder of the test code I ended up using: [Clone: windows-machine-successful-test](https://github.com/IVSoftware/TestinMAUIPageNavigationPerf/tree/windows-machine-successful-test)
 
-[Clone: windows-machine-successful-test](https://github.com/IVSoftware/TestinMAUIPageNavigationPerf/tree/windows-machine-successful-test)
-
-The biggest change is moving the `SelectItem` command to the `MainPageViewModel`:
+The biggest change is moving the `SelectItemCommand` to the `MainPageViewModel`:
 
 ```
 public partial class MainPageViewModel : ObservableObject
@@ -118,7 +119,33 @@ public partial class MainPageViewModel : ObservableObject
         {
             if (App.Current?.MainPage?.Handler != null)
             {
-                await Shell.Current.GoToAsync(nameof(SelectPage));
+#if WINDOWS
+                retry:
+                int tries = 1;
+                try
+                {
+                    await Shell.Current.GoToAsync(nameof(SelectPage));
+                }
+                catch(System.Runtime.InteropServices.COMException ex) 
+                {
+                    if(tries == 1) 
+                        Debug.WriteLine($"{ex.GetType().Name}{Environment.NewLine}{ex.Message}");
+                    if (tries++ < 5)
+                    {
+                        goto retry;
+                    }
+                    else throw new AggregateException(ex);
+                }
+#else
+                try
+                {
+                    await Shell.Current.GoToAsync(nameof(SelectPage));
+                }
+                catch(Exception ex) 
+                {
+                    Debug.WriteLine($"{ex.GetType().Name} is unexpected on this platform.");
+                }
+#endif
             }
         }
         catch (Exception e)
@@ -137,39 +164,11 @@ public partial class MainPageViewModel : ObservableObject
 }
 ```
 
-In doing so, all the `SelectPage` needs to do is pull the current BC in the `OnAppearing` method. To the extent that there may have been suspicion around the original code changing the binding context synchronously within the `OnNavigatedTo` block, thes changes were designed to perform the same bindings in a more standard way.
+In doing so, all the `SelectPage` needs to do is pull the current BC in the `OnAppearing` method (this code was already listed above). To the extent that there may have been suspicion around the original code changing the binding context synchronously within the `OnNavigatedTo` block, these changes were intended to perform the same bindings in a more conventional way.
 
-```
-public partial class SelectPage : ContentPage
-{
-    public SelectPage()
-    {
-        InitializeComponent();
-    }
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        if(MainPageViewModel.SelectedItemViewModel is ItemViewModel valid)
-        {
-            BindingContext = valid;
-        }
-    }
-#if SELF_TEST
-    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
-    {
-        base.OnNavigatedTo(args);
-        await Task.Delay(AppShell.TestInterval);
-        if (Handler != null)
-        {
-            // Discard task to keep self-test stack from creeping from recursion
-            _ = Shell.Current.GoToAsync($"//{nameof(MainPage)}");
-        }
-    }
-#endif
-}
-```
+___
 
-This is reflected these changes to **MainPage.xaml**:
+The move of the `SelectItemCommand` is reflected the modified binding in **MainPage.xaml**:
 
 ```
 <?xml version="1.0" encoding="utf-8" ?>
@@ -216,9 +215,14 @@ The only added functionality in the code behind for MainPage is the SELF_TEST bl
 ```
 public partial class MainPage : ContentPage
 {
-    public MainPage() => InitializeComponent();
-    new MainPageViewModel BindingContext =>(MainPageViewModel)base.BindingContext;
 #if SELF_TEST
+    private static uint _instanceCounter = 0;
+    public MainPage()
+    {
+        _instanceCounter++;
+        Debug.Assert(_instanceCounter <= 1, "Expecting only one instance of this class.");
+        InitializeComponent();
+    }
     protected override async void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
@@ -232,7 +236,11 @@ public partial class MainPage : ContentPage
     }
     int _debugCount = 1;
     Random _rando = new Random(Seed: 1);
+#else 
+    public MainPage() => InitializeComponent();
 #endif
+       
+    new MainPageViewModel BindingContext =>(MainPageViewModel)base.BindingContext;
 }
 ```
 
