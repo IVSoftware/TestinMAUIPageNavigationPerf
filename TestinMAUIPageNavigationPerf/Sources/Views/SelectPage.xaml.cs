@@ -29,8 +29,7 @@ public partial class SelectPage : ContentPage
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                if (tries == 1)
-                    Debug.WriteLine($"{ex.GetType().Name}{Environment.NewLine}{ex.Message}");
+                if (tries == 1) AppShell.ReportError(ex);
                 if (tries++ < 5)
                 {
                     goto retry;

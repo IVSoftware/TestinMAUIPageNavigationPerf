@@ -1,4 +1,6 @@
-﻿using TestinMAUIPageNavigationPerf.Sources.Views;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using TestinMAUIPageNavigationPerf.Sources.Views;
 
 namespace TestinMAUIPageNavigationPerf
 {
@@ -42,6 +44,13 @@ namespace TestinMAUIPageNavigationPerf
             Routing.RegisterRoute($"{nameof(MainPage)}/{nameof(SelectPage)}", typeof(SelectPage));
         }
         public static TimeSpan TestInterval = TimeSpan.FromSeconds(0.5);
+        private static uint _comExceptionCount = 0;
+        public static void ReportError(Exception ex, [CallerMemberName]string? caller = null)
+        {
+            _comExceptionCount++;
+            Debug.WriteLine
+                ($"{ex.GetType().Name} Count={_comExceptionCount} Caller={caller}{Environment.NewLine}{ex.Message}");
+        }
     }
 #endif
 }

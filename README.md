@@ -1,11 +1,13 @@
 ___
 _This is an UPDATED ANSWER. I have been able to:_
- - _Identify the specific exception being thrown_
+ - _Confirm the specific exception being thrown_
+ - _Attribute it to `builder.Services.AddSingleton<SelectPage>()` 
+ and exonerate the code._
  - _Identify a possible MAUI platform bug that might explain it._
  - _Intercept the exception and successfully use a retry mechanism to test on a long-running loop._
 
 
-This debug output shows a successful retry at N=5 ***but it also unexpectedly produced a message from the MAUI platform inviting us to submit a bug.*** (_I'm on it..._)
+This debug output shows a successful retry at N=5 ***but it also unexpectedly produced a message from the MAUI platform inviting us to submit a bug.*** [_I'm on it..._](https://github.com/dotnet/maui/issues/23050#issuecomment-2368856252)
 
 [![debug log with maui message][2]][2]
 ___
