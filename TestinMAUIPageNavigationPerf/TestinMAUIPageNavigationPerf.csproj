@@ -79,6 +79,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="TestLogs\" />
 	  <Folder Include="Screenshots\" />
 	</ItemGroup>
 
